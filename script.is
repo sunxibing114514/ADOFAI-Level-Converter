@@ -29,13 +29,17 @@ function handleFile(event) {
     if (file && file.name.endsWith(".adofai")) {
         const reader = new FileReader();
         reader.onload = (e) => {
-            fileContent = JSON.parse(e.target.result);
-            document.getElementById("convertButton").disabled = false;
-            document.getElementById("status").innerText = `Loaded file: ${file.name}`;
+            try {
+                fileContent = JSON.parse(e.target.result);
+                document.getElementById("convertButton").disabled = false; // 启用按钮
+                document.getElementById("status").innerText = `Loaded file: ${file.name}`;
+            } catch (err) {
+                document.getElementById("status").innerText = "Invalid file content.";
+            }
         };
         reader.readAsText(file);
     } else {
-        alert("Please upload a valid .adofai file.");
+        document.getElementById("status").innerText = "Please upload a valid .adofai file.";
     }
 }
 
