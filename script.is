@@ -55,14 +55,15 @@ function handleFile(event) {
 // Convert the file
 function convertFile() {
     if (!fileContent) {
-        console.error("No file content available for conversion.");
+        console.error("文件内容为空，无法转换。");
         return;
     }
 
-    console.log("Starting conversion...");
+    console.log("开始转换...");
     const removeDecorations = document.getElementById("removeDecorations").checked;
 
     if (fileContent.actions) {
+        console.log("过滤前的 actions 数量:", fileContent.actions.length);
         fileContent.actions = fileContent.actions.filter((action) => {
             const eventType = action.eventType;
             if (!SUPPORTED_ACTIONS.includes(eventType)) return false;
@@ -71,16 +72,20 @@ function convertFile() {
             }
             return true;
         });
+        console.log("过滤后的 actions 数量:", fileContent.actions.length);
     }
 
-    console.log("Conversion complete. Actions updated:", fileContent.actions);
+    if (removeDecorations && fileContent.decorations) {
+        delete fileContent.decorations;
+        console.log("已删除 decorations 字段");
+    }
 
-    // Create a downloadable file
-    const blob = new Blob([JSON.stringify(fileContent, null, 4)], { type: "application/json" });
+    // 生成紧凑 JSON 文件（避免换行）
+    const blob = new Blob([JSON.stringify(fileContent)], { type: "application/json" });
     const downloadLink = document.getElementById("downloadLink");
     downloadLink.href = URL.createObjectURL(blob);
     downloadLink.download = "converted_level.adofai";
     downloadLink.style.display = "block";
-    downloadLink.innerText = "Download Converted File";
-    document.getElementById("status").innerText = "Conversion complete! Download the file below.";
+    downloadLink.innerText = "下载转换后的文件";
+    document.getElementById("status").innerText = "转换完成！请下载文件。";
 }
