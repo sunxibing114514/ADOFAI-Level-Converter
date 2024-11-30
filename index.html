@@ -3,22 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADOFAI Level Converter</title>
-    <link rel="stylesheet" href="style.css">
+    <title>ADOFAI水平转换器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        button {
+            margin: 10px 0;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+            margin-top: 10px;
+            display: inline-block;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>ADOFAI Level Converter</h1>
-        <p>Upload your .adofai file to downgrade it to version 2.4.0 (11) and optionally remove decorations.</p>
+        <h1>ADOFAI水平转换器</h1>
+        <p>上传您的.adofai文件将其降级到2.4.0（11）版本，并可选择删除装饰。</p>
         <input type="file" id="upload" accept=".adofai">
         <label>
             <input type="checkbox" id="removeDecorations">
-            Remove all decorations
+            移除所有装饰品
         </label>
-        <button id="convertButton" disabled>Convert</button>
-        <a id="downloadLink" style="display: none;">Download Converted File</a>
+        <button id="convertButton" disabled>转换</button>
+        <a id="downloadLink" style="display: none;">下载转换后的文件</a>
         <div id="status"></div>
     </div>
-    <script src="script.js"></script>
+    <script>
+        document.getElementById("upload").addEventListener("change", handleFile);
+        document.getElementById("convertButton").addEventListener("click", convertFile);
+
+        let fileContent = null;
+
+        // Supported actions for ADOFAI version 2.4.0
+        const SUPPORTED_ACTIONS = [
+            "SetSpeed",
+            "Twirl",
+            "CheckPoint",
+            "PositionTrack",
+            "MoveTrack",
+            "RecolorTrack",
+            "RecolorPath",
+            "AddDecoration",
+            "MoveDecoration",
+            "DeleteDecoration",
+            "Flash",
+            "SetHitsound",
+            "CustomBackground",
+            "SetPlanetRotation",
+            "ShakeScreen",
+            "HallOfMirrors",
+        ];
+
+        // Handle file upload
+        function handleFile(event) {
+            const file = event.target.files[0];
+            console.log("File uploaded:", file);
+
+            if (file && file.name.endsWith(".adofai")) {
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    try {
+                        fileContent = JSON.parse(e.target.result);
+                        console.log("File content successfully parsed:", fileContent);
+
+                        document.getElementById("convertButton").disabled = false; // 启用按钮
+                        document.getElementById("status").innerText = `加载的文件: ${file.name}`;
+                    } catch (err) {
+                        console.error("解析文件内容时出错:", err);
+                        document.getElementById("status").innerText = "无效的文件内容。";
+                        document.getElementById("convertButton").disabled = true; // 禁用按钮
+                    }
+                };
+
+                reader.readAsText(file);
+            } else {
+                document.getElementById("status").innerText = "请上传有效的.adofai文件。";
+                document.getElementById("convertButton").disabled = true; // 禁用按钮
+            }
+        }
+
+        // Convert the file
+        function convertFile() {
+            if (!fileContent) {
+                console.error("文件内容为空，无法转换。");
+                return;
+            }
+
+            console.log("开始转换...");
+            const removeDecorations = document.getElementById("removeDecorations").checked;
+
+            if (fileContent.actions) {
+                fileContent.actions = fileContent.actions.filter((action) => {
+                    const eventType = action.eventType;
+                    if (!SUPPORTED_ACTIONS.includes(eventType)) return false;
+                    if (removeDecorations && ["AddDecoration", "MoveDecoration", "DeleteDecoration"].includes(eventType)) {
+                        return false;
+                    }
+                    return true;
+                });
+            }
+
+            console.log("转换完成，更新后的actions:", fileContent.actions);
+
+            // Create a downloadable file
+            const blob = new Blob([JSON.stringify(fileContent, null, 4)], { type: "application/json" });
+            const downloadLink = document.getElementById("downloadLink");
+            downloadLink.href = URL.createObjectURL(blob);
+            downloadLink.download = "converted_level.adofai";
+            downloadLink.style.display = "block";
+            downloadLink.innerText = "下载转换后的文件";
+            document.getElementById("status").innerText = "转换完成！请下载文件。";
+        }
+    </script>
 </body>
 </html>
