@@ -80,8 +80,8 @@ function convertFile() {
         console.log("已删除 decorations 字段");
     }
 
-    // 生成紧凑 JSON 文件（避免换行）
-    const blob = new Blob([JSON.stringify(fileContent)], { type: "application/json" });
+    // 生成紧凑的 JSON 文件，不添加换行或空格
+    const blob = new Blob([JSON.stringify(fileContent, null, 0)], { type: "application/json" });
     const downloadLink = document.getElementById("downloadLink");
     downloadLink.href = URL.createObjectURL(blob);
     downloadLink.download = "converted_level.adofai";
