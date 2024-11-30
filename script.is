@@ -26,27 +26,40 @@ const SUPPORTED_ACTIONS = [
 // Handle file upload
 function handleFile(event) {
     const file = event.target.files[0];
+    console.log("File uploaded:", file);
+
     if (file && file.name.endsWith(".adofai")) {
         const reader = new FileReader();
+
         reader.onload = (e) => {
             try {
                 fileContent = JSON.parse(e.target.result);
+                console.log("File content successfully parsed:", fileContent);
+
                 document.getElementById("convertButton").disabled = false; // 启用按钮
                 document.getElementById("status").innerText = `Loaded file: ${file.name}`;
             } catch (err) {
+                console.error("Error parsing file content:", err);
                 document.getElementById("status").innerText = "Invalid file content.";
+                document.getElementById("convertButton").disabled = true; // 禁用按钮
             }
         };
+
         reader.readAsText(file);
     } else {
         document.getElementById("status").innerText = "Please upload a valid .adofai file.";
+        document.getElementById("convertButton").disabled = true; // 禁用按钮
     }
 }
 
 // Convert the file
 function convertFile() {
-    if (!fileContent) return;
+    if (!fileContent) {
+        console.error("No file content available for conversion.");
+        return;
+    }
 
+    console.log("Starting conversion...");
     const removeDecorations = document.getElementById("removeDecorations").checked;
 
     if (fileContent.actions) {
@@ -59,6 +72,8 @@ function convertFile() {
             return true;
         });
     }
+
+    console.log("Conversion complete. Actions updated:", fileContent.actions);
 
     // Create a downloadable file
     const blob = new Blob([JSON.stringify(fileContent, null, 4)], { type: "application/json" });
