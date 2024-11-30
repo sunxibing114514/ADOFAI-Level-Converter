@@ -1,0 +1,67 @@
+document.getElementById("upload").addEventListener("change", handleFile);
+document.getElementById("convertButton").addEventListener("click", convertFile);
+
+let fileContent = null;
+
+// Supported actions for ADOFAI version 2.4.0
+const SUPPORTED_ACTIONS = [
+    "SetSpeed",
+    "Twirl",
+    "CheckPoint",
+    "PositionTrack",
+    "MoveTrack",
+    "RecolorTrack",
+    "RecolorPath",
+    "AddDecoration",
+    "MoveDecoration",
+    "DeleteDecoration",
+    "Flash",
+    "SetHitsound",
+    "CustomBackground",
+    "SetPlanetRotation",
+    "ShakeScreen",
+    "HallOfMirrors",
+];
+
+// Handle file upload
+function handleFile(event) {
+    const file = event.target.files[0];
+    if (file && file.name.endsWith(".adofai")) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            fileContent = JSON.parse(e.target.result);
+            document.getElementById("convertButton").disabled = false;
+            document.getElementById("status").innerText = `Loaded file: ${file.name}`;
+        };
+        reader.readAsText(file);
+    } else {
+        alert("Please upload a valid .adofai file.");
+    }
+}
+
+// Convert the file
+function convertFile() {
+    if (!fileContent) return;
+
+    const removeDecorations = document.getElementById("removeDecorations").checked;
+
+    if (fileContent.actions) {
+        fileContent.actions = fileContent.actions.filter((action) => {
+            const eventType = action.eventType;
+            if (!SUPPORTED_ACTIONS.includes(eventType)) return false;
+            if (removeDecorations && ["AddDecoration", "MoveDecoration", "DeleteDecoration"].includes(eventType)) {
+                return false;
+            }
+            return true;
+        });
+    }
+
+    // Create a downloadable file
+    const blob = new Blob([JSON.stringify(fileContent, null, 4)], { type: "application/json" });
+    const downloadLink = document.getElementById("downloadLink");
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.download = "converted_level.adofai";
+    downloadLink.style.display = "block";
+    downloadLink.innerText = "Download Converted File";
+    document.getElementById("status").innerText = "Conversion complete! Download the file below.";
+}
