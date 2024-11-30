@@ -55,8 +55,8 @@
 <body>
     <div class="container">
         <h1>ADOFAI水平转换器</h1>
-        <p>上传您的.adofai文件将其降级到2.4.0（11）版本，并可选择删除装饰。</p>
-        <input type="file" id="upload" accept=".adofai">
+        <p>上传文件将其降级到2.4.0（11）版本，并可选择删除装饰。</p>
+        <input type="file" id="upload">
         <label>
             <input type="checkbox" id="removeDecorations">
             移除所有装饰品
@@ -96,7 +96,7 @@
             const file = event.target.files[0];
             console.log("File uploaded:", file);
 
-            if (file && file.name.endsWith(".adofai")) {
+            if (file) {
                 const reader = new FileReader();
 
                 reader.onload = (e) => {
@@ -115,7 +115,7 @@
 
                 reader.readAsText(file);
             } else {
-                document.getElementById("status").innerText = "请上传有效的.adofai文件。";
+                document.getElementById("status").innerText = "请上传文件。";
                 document.getElementById("convertButton").disabled = true; // 禁用按钮
             }
         }
