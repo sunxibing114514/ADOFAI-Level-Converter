@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADOFAI Level Converter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>ADOFAI Level Converter</h1>
+        <p>Upload your .adofai file to downgrade it to version 2.4.0 (11) and optionally remove decorations.</p>
+        <input type="file" id="upload" accept=".adofai">
+        <label>
+            <input type="checkbox" id="removeDecorations">
+            Remove all decorations
+        </label>
+        <button id="convertButton" disabled>Convert</button>
+        <a id="downloadLink" style="display: none;">Download Converted File</a>
+        <div id="status"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
